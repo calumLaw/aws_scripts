@@ -2,6 +2,8 @@ import boto3
 import json
 import argparse
 
+FLOW_NAME_KEYPHRASE = "WBD-"
+
 def list_filtered_outputs(search_string):
     mediaconnect_client = boto3.client('mediaconnect')
     flows_response = mediaconnect_client.list_flows()
@@ -12,7 +14,11 @@ def list_filtered_outputs(search_string):
         flow_response = mediaconnect_client.describe_flow(FlowArn=flow['FlowArn'])
         for output in flow_response['Flow']['Outputs']:
             if search_string in output['Name']:
-                desired_outputs.append(output['OutputArn'])
+                if FLOW_NAME_KEYPHRASE in output['Name']:
+                    desired_outputs.append(output['OutputArn'])
+                    print(f"{output['OutputArn']} added to list.")
+                else:
+                    print(f"Output does not contain keyphrase: {FLOW_NAME_KEYPHRASE}")
     
     
     return desired_outputs
